@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>896622122947-d0uo4a9rj3q2n2e0t3suru2jelco8dc3.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.896622122947-d0uo4a9rj3q2n2e0t3suru2jelco8dc3</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>896622122947-8j2e1927kh8fpulguhcbhmga09te9umh.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAciW5aOsjmqj8sbHFpbUcn-tSG9hLuZWM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>896622122947</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.sportopia.app</string>
+	<key>PROJECT_ID</key>
+	<string>sportopia-74ea2</string>
+	<key>STORAGE_BUCKET</key>
+	<string>sportopia-74ea2.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:896622122947:ios:5820b29cff54eb80bb4f76</string>
+</dict>
+</plist>
