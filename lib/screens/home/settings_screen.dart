@@ -25,6 +25,11 @@ class _SettingscreenState extends State<Settingscreen> {
     // TODO: implement initState
     super.initState();
     client = Provider.of<DataProvider>(context, listen: false).client;
+     WidgetsBinding.instance.addPostFrameCallback((_) {
+    Provider.of<DataProvider>(context, listen: false).getClient(client!.id);
+  });
+   
+   
   }
 
   @override
@@ -94,16 +99,7 @@ class _SettingscreenState extends State<Settingscreen> {
                             ),
                           ),
                         ),
-                        Text(
-                          "@" + client!.instagram,
-                          style: GoogleFonts.teko(
-                            textStyle: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: AppConstants.critical,
-                            ),
-                          ),
-                        ),
+                        
                       ],
                     ),
                   ],

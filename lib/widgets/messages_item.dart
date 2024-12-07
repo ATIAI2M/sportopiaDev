@@ -118,14 +118,7 @@ class _MessagesItemState extends State<MessagesItem> {
                         ),
                       ),
                     ),
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 5.0),
-                      child: Icon(
-                        Icons.verified,
-                        size: 15,
-                        color: Color(0xFF3897F0),
-                      ),
-                    ),
+                   
                   ],
                 ),
                   Text(

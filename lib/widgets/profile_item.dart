@@ -73,11 +73,7 @@ class ProfileItem extends StatelessWidget {
                     SizedBox(
                       width: 5,
                     ),
-                    Icon(
-                      Icons.verified,
-                      color: Color(0xFF3897F0),
-                      size: 15,
-                    )
+                    
                   ],
                 ),
                 Text(

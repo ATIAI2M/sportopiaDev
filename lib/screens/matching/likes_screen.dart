@@ -3,6 +3,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testapp/app_const.dart';
+import 'package:testapp/functions/showsnack.dart';
 import 'package:testapp/models/chat.dart';
 import 'package:testapp/models/client.dart';
 import 'package:testapp/providers/data_provider.dart';
@@ -32,8 +33,17 @@ class _LikesScreenState extends State<LikesScreen> {
   }
 
   void removeClient(Client cl) {
+
     if (likedClients.isNotEmpty) {
+     Provider.of<DataProvider>(context, listen: false).deleteLike(cl.id).then((v){
       likedClients.remove(cl);
+      showSnackBar( "Supprimer like avec success",  context ,Colors.green) ; 
+
+     }).catchError((err){
+       //show toast
+        showSnackBar( "Erreur",  context ,Colors.red) ; 
+     });
+
     }
 
     setState(() {});

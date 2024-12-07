@@ -189,21 +189,21 @@
 //                     Wrap(children: [
 //                       ChoiceChip(
 //                         label: Text(
-//                           'homme',
+//                           'Homme',
 //                           style: TextStyle(
-//                               color: gender == 'homme'
+//                               color: gender == 'Homme'
 //                                   ? const Color.fromARGB(255, 246, 210, 210)
 //                                   : Colors.black),
 //                         ),
-//                         selected: gender == 'homme',
+//                         selected: gender == 'Homme',
 //                         onSelected: (selected) {
 //                           setState(() {
-//                             gender = selected ? 'homme' : '';
+//                             gender = selected ? 'Homme' : '';
 //                           });
 //                         },
 //                         side: BorderSide(
 //                             color: AppConstants.line.withOpacity(0.32)),
-//                         backgroundColor: gender == 'homme'
+//                         backgroundColor: gender == 'Homme'
 //                             ? AppConstants.critical
 //                             : Colors.transparent,
 //                         selectedColor: AppConstants.critical,
@@ -213,21 +213,21 @@
 //                       ),
 //                       ChoiceChip(
 //                         label: Text(
-//                           'femme',
+//                           'Femme',
 //                           style: TextStyle(
-//                               color: gender == 'femme'
+//                               color: gender == 'Femme'
 //                                   ? const Color.fromARGB(255, 246, 210, 210)
 //                                   : Colors.black),
 //                         ),
-//                         selected: gender == 'femme',
+//                         selected: gender == 'Femme',
 //                         onSelected: (selected) {
 //                           setState(() {
-//                             gender = selected ? 'femme' : '';
+//                             gender = selected ? 'Femme' : '';
 //                           });
 //                         },
 //                         side: BorderSide(
 //                             color: AppConstants.line.withOpacity(0.32)),
-//                         backgroundColor: gender == 'femme'
+//                         backgroundColor: gender == 'Femme'
 //                             ? AppConstants.critical
 //                             : Colors.transparent,
 //                         selectedColor: AppConstants.critical,

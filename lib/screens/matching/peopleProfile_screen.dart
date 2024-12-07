@@ -298,11 +298,7 @@ class _PeopleProfileScreenState extends State<PeopleProfileScreen> {
                             ),
                           ),
                           SizedBox(width: 10),
-                          Icon(
-                            Icons.verified,
-                            color: Color(0xFF3897F0),
-                            size: 25,
-                          ),
+                         
                         ],
                       ),
                       Row(
@@ -362,7 +358,7 @@ class _PeopleProfileScreenState extends State<PeopleProfileScreen> {
                       ),
                       SizedBox(height: 50),
                       Text(
-                        'descriptif'.toUpperCase(),
+                        'A Propos'.toUpperCase(),
                         style: GoogleFonts.teko(
                           color: AppConstants.gray1,
                           fontSize: 24,
@@ -645,7 +641,7 @@ class _PeopleProfileScreenState extends State<PeopleProfileScreen> {
                           ),
                         ),
 
-                      SizedBox(height: 30),
+                      const SizedBox(height: 30),
                     ],
                   ),
                 ),

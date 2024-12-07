@@ -19,7 +19,7 @@ class DataProvider with ChangeNotifier {
   final String serverUrl = "https://server.sportopia.tn";
   final String socketUrl = "https://server.sportopia.tn/websocket";
 
-  // final String serverUrl = "http://192.168.100.14:3000";
+  // final String serverUrl = "http://192.168.100.33:3000";
   // final String socketUrl = "http://192.168.100.14:3000/websocket";
 
   late User user;
@@ -146,7 +146,7 @@ class DataProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getChatClients() async {
+ Future<void> getChatClients() async {
     final url = '$serverUrl/api/chats/clients/' + client!.id;
 
     final response = await http.get(Uri.parse(url), headers: {
@@ -161,6 +161,7 @@ class DataProvider with ChangeNotifier {
         chatClients = [];
 
         data.forEach((element) {
+          print("chatClients");
           print(element);
           final chatclient = Client.fromJson(element);
 
@@ -201,7 +202,7 @@ class DataProvider with ChangeNotifier {
 
   Future<void> getClients() async {
     final url = '$serverUrl/api/clients/position/';
-
+    
     final response = await http.post(Uri.parse(url),
         headers: {
           "x-access-token": user.accessToken,
@@ -215,6 +216,26 @@ class DataProvider with ChangeNotifier {
           "minAge": minAge.round(),
           "maxAge": maxAge.round(),
           "id": client!.id,
+          "goal": goal, 
+          "level": level,
+          "frequency": frequency,
+          "animal": animal,
+          "club": club,
+          "sports": selectedsport.isEmpty ? null : selectedsport,
+          "items": selectedItems,
+          "language": language
+        }));
+       print("r------");
+       print(jsonEncode({
+          "latitude": client!.position["coordinates"][1],
+          "longitude": client!.position["coordinates"][0],
+          "maxDistance": distance.round(),
+          "gender": gender, //iwant to uppercase the first letter
+          
+          
+          "minAge": minAge.round(),
+          "maxAge": maxAge.round(),
+          "id": client!.id,
           "goal": goal,
           "level": level,
           "frequency": frequency,
@@ -224,25 +245,30 @@ class DataProvider with ChangeNotifier {
           "items": selectedItems,
           "language": language
         }));
+      
 
     try {
-      print("data");
-      print(response.body);
-      print(response.statusCode);
+     
       final data = json.decode(response.body) as List<dynamic>;
 
       if (response.statusCode == 200) {
         sortedClients.clear();
         clients.clear();
+        print(data);
 
         data.forEach((element) {
+         
+  
           final client = Client.fromJson(element["client"]);
+
           final distance = double.parse(element["distance"].toString());
 
           clients.add(client);
           sortedClients.putIfAbsent(client, () => distance);
         });
       }
+      notifyListeners();
+      
     } catch (e) {
       print(e.toString());
     }
@@ -275,6 +301,24 @@ class DataProvider with ChangeNotifier {
     }
     notifyListeners();
   }
+Future<void> deleteLike(String id) async {
+    final url = serverUrl + '/api/likes/';
+
+    try {
+      final res = await http.delete(Uri.parse(url), headers: {
+        "x-access-token": user.accessToken,
+      }, body: {
+        "clientId1": id,
+        "clientId2": client!.id,
+      });
+      print(res.body);
+      await getMatchings();
+            notifyListeners();
+
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 
   Future<void> getLikes() async {
     final url = '$serverUrl/api/likes/' + client!.id;
@@ -295,6 +339,8 @@ class DataProvider with ChangeNotifier {
           likedClients.add(liked);
         });
       }
+            notifyListeners();
+
     } catch (e) {
       print(e.toString());
     }
@@ -345,6 +391,9 @@ class DataProvider with ChangeNotifier {
       });
       print(res.body);
       await getMatchings();
+      await getChatClients();
+      notifyListeners();
+
     } catch (e) {
       print(e.toString());
     }
@@ -368,6 +417,7 @@ class DataProvider with ChangeNotifier {
         await getClient(user.id);
         await updateUserToken();
       }
+      notifyListeners();
     } catch (e) {
       print(e.toString());
     }
@@ -411,9 +461,7 @@ class DataProvider with ChangeNotifier {
 
     try {
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      print("getClient");
-      print(extractedData);
-      print(response.statusCode);
+     
 
       if (response.statusCode == 200) {
         client = Client.fromJson(extractedData);
@@ -531,7 +579,7 @@ class DataProvider with ChangeNotifier {
 
         // client = Client.fromJson(data["client"]);
         await getClient(user.id);
-        print(client.id);
+      
       } else {
         print(response.reasonPhrase);
       }
@@ -554,7 +602,8 @@ class DataProvider with ChangeNotifier {
       });
       request.files.add(await http.MultipartFile.fromPath('file', image.path));
 
-      http.StreamedResponse response = await request.send();
+      http.StreamedResponse response
+       = await request.send();
 
       final extractedData = await response.stream.bytesToString();
       print(extractedData);
@@ -564,7 +613,7 @@ class DataProvider with ChangeNotifier {
         // final data = json.decode(extractedData) as Map<String, dynamic>;
 
         // client = Client.fromJson(data["client"]);
-        await getClient(user.id);
+        await getClient(user.id).then((value) => notifyListeners());
       } else {
         print(response.reasonPhrase);
       }
@@ -588,6 +637,11 @@ class DataProvider with ChangeNotifier {
           "clientId2": id,
         },
       );
+      print({
+          "clientId1": client!.id,
+          "clientId2": id,
+        }) ; 
+      print(response.body);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       print(extractedData);
       if (extractedData["matched"] != null) {

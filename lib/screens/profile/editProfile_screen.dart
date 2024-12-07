@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:testapp/app_const.dart';
@@ -31,17 +32,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   String code = "";
 
-  Future getImage() async {
+  Future<void> getImageAndCrop() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        selectedImage = pickedFile;
-      } else {
-        print('No image selected.');
+    if (pickedFile != null) {
+      final CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        uiSettings: [
+          AndroidUiSettings(
+            cropStyle: CropStyle.circle,
+            toolbarTitle: "Recadrer et ajuster l'image",
+            toolbarColor: AppConstants.critical,
+            toolbarWidgetColor: Colors.white,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            cropStyle: CropStyle.circle,
+            title: "Recadrer et ajuster l'image",
+            minimumAspectRatio: 1.0,
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        setState(() {
+          selectedImage = XFile(croppedFile.path); // Convert to XFile
+        });
       }
-    });
+    } else {
+      print('No image selected.');
+    }
   }
 
   @override
@@ -90,7 +112,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         color: AppConstants.black,
                       ),
                       onPressed: () {
-                        Navigator.of(context).pop();
+                        Provider.of<DataProvider>(context, listen: false).getClient(client!.id).then((onValue)=>{
+                                                  Navigator.of(context).pop()
+
+                        });
                       },
                       iconSize: 24,
                       color: AppConstants.black,
@@ -115,7 +140,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   children: [
                     InkWell(
                       onTap: () async {
-                        await getImage();
+                        await getImageAndCrop(); // Select and crop the image
+                        if (selectedImage != null) {
+                          await Provider.of<DataProvider>(context,
+                                  listen: false)
+                              .updateClientImage(
+                                  selectedImage!); // Upload the image
+                          showSnackBar(
+                              "Image de profil mise à jour avec succès !");
+                        }
                       },
                       child: Stack(
                         children: [
@@ -142,7 +175,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                     },
                                   ),
                           ),
-                          Positioned(
+                          const Positioned(
                               right: 5,
                               bottom: 1,
                               child: CircleAvatar(
@@ -169,7 +202,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         Text(
                           user!.email,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: AppConstants.critical,
@@ -254,40 +287,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         decoration: const InputDecoration(
                           border: InputBorder.none,
-                          labelText: 'Descriptif',
+                          labelText: 'A Propos',
                         ),
-                      ),
-                      Divider(color: AppConstants.gray2),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            "assets/images/instagram.png",
-                            width: 20,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          SizedBox(
-                            width: MediaQuery.of(context).size.width * 0.8,
-                            child: TextFormField(
-                              keyboardType: TextInputType.text,
-                              controller: igcontroller,
-                              style: GoogleFonts.poppins(
-                                textStyle: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
-                                ),
-                                color: Colors.black,
-                              ),
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                labelText: 'Compte instagram',
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                       Divider(color: AppConstants.gray2),
                       Padding(

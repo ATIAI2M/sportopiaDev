@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -105,21 +106,16 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     width: 2,
                   ),
                   ClipOval(
-                    child: Image.network(
-                      AppConstants().serverUrl + widget.client.imgUrl,
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.asset(
-                          "assets/images/profile.jpg",
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    ),
-                  ),
+                   child: CachedNetworkImage(
+                            imageUrl: AppConstants().serverUrl + widget.client!.imgUrl,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
+                          )),
                   SizedBox(
                     width: 12,
                   ),
@@ -239,6 +235,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                                 client!.id, widget.client.id);
                                         Navigator.of(context).pop();
                                         Navigator.of(context).pop();
+                                        setState(() {});
                                       },
                                       child: Text("Annuler le match",
                                           style: GoogleFonts.roboto(

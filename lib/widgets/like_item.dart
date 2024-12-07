@@ -46,11 +46,7 @@ class LikeItem extends StatelessWidget {
           const SizedBox(
             width: 5,
           ),
-          const Icon(
-            Icons.verified,
-            size: 15,
-            color: Color(0xFF3897F0),
-          )
+         
         ],
       ),
       // subtitle: Text(
@@ -101,6 +97,7 @@ class LikeItem extends StatelessWidget {
                   color: const Color(0xFFFD4755),
                 ),
                 onPressed: () async {
+
                   final likesCount =
                       await Provider.of<DataProvider>(context, listen: false)
                           .getLikesToday();
@@ -126,7 +123,6 @@ class LikeItem extends StatelessWidget {
                       },
                     );
                   } else {
-                    removeClient(client);
                     final matched =
                         await Provider.of<DataProvider>(context, listen: false)
                             .like(client.id);

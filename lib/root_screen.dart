@@ -34,71 +34,74 @@ class _RootScreenState extends State<RootScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        // drawer: AppDrawer(),
-        body: PageView(
-          controller: pageController,
-          physics: const NeverScrollableScrollPhysics(),
-          children: <Widget>[
-            HomeScreen(),
-            LoadingScreen(),
-            ChatScreen(),
-            NotificationScreen(),
-            Settingscreen(),
-          ],
-          onPageChanged: (int index) {
-            setState(() {
-              currentIndex = index;
-            });
-          },
-        ),
-
-        bottomNavigationBar: BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/home.svg',
-                  color: currentIndex == 0 ? AppConstants.critical : null,
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/discover.svg',
-                  color: currentIndex == 1 ? AppConstants.critical : null,
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/comment-text.svg',
-                  color: currentIndex == 2 ? AppConstants.critical : null,
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/bell.svg',
-                  color: currentIndex == 3 ? AppConstants.critical : null,
-                ),
-                label: '',
-              ),
-              BottomNavigationBarItem(
-                icon: SvgPicture.asset(
-                  'assets/images/Settings.svg',
-                  color: currentIndex == 4 ? AppConstants.critical : null,
-                ),
-                label: '',
-              ),
+      child: PopScope(
+        canPop: false,
+        child: Scaffold(
+          // drawer: AppDrawer(),
+          body: PageView(
+            controller: pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            children: <Widget>[
+              HomeScreen(),
+              LoadingScreen(),
+              ChatScreen(),
+              NotificationScreen(),
+              Settingscreen(),
             ],
-            type: BottomNavigationBarType.shifting,
-            currentIndex: currentIndex,
-            selectedItemColor: AppConstants.critical,
-            unselectedItemColor: Colors.grey,
-            showUnselectedLabels: true,
-            //iconSize: 40,
-            onTap: _selectedTab,
-            elevation: 5),
+            onPageChanged: (int index) {
+              setState(() {
+                currentIndex = index;
+              });
+            },
+          ),
+        
+          bottomNavigationBar: BottomNavigationBar(
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: SvgPicture.asset(
+                    'assets/images/home.svg',
+                    color: currentIndex == 0 ? AppConstants.critical : null,
+                  ),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: SvgPicture.asset(
+                    'assets/images/discover.svg',
+                    color: currentIndex == 1 ? AppConstants.critical : null,
+                  ),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: SvgPicture.asset(
+                    'assets/images/comment-text.svg',
+                    color: currentIndex == 2 ? AppConstants.critical : null,
+                  ),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: SvgPicture.asset(
+                    'assets/images/bell.svg',
+                    color: currentIndex == 3 ? AppConstants.critical : null,
+                  ),
+                  label: '',
+                ),
+                BottomNavigationBarItem(
+                  icon: SvgPicture.asset(
+                    'assets/images/Settings.svg',
+                    color: currentIndex == 4 ? AppConstants.critical : null,
+                  ),
+                  label: '',
+                ),
+              ],
+              type: BottomNavigationBarType.shifting,
+              currentIndex: currentIndex,
+              selectedItemColor: AppConstants.critical,
+              unselectedItemColor: Colors.grey,
+              showUnselectedLabels: true,
+              //iconSize: 40,
+              onTap: _selectedTab,
+              elevation: 5),
+        ),
       ),
     );
   }

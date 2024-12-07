@@ -34,8 +34,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // emailcontroller.text = "amine@gmail.com";
-    // passwordcontroller.text = "azerty";
+    
+    
   }
 
   GoogleSignIn _googleSignIn = GoogleSignIn();

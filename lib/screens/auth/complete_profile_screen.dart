@@ -1366,6 +1366,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   Widget StepFour() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Center(
           child: InkWell(
@@ -1412,6 +1413,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           height: 10,
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.3,
@@ -1448,62 +1450,45 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           ],
         ),
         SizedBox(
-          height: 10,
+          height: 20,
         ),
-        TextFormField(
-          keyboardType: TextInputType.text,
-          controller: biocontroller,
-          maxLines: 3,
-          maxLength: 500,
-          style: GoogleFonts.poppins(
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-            ),
-            color: Colors.black,
-          ),
-          decoration: const InputDecoration(
-            border: UnderlineInputBorder(),
-            labelText: 'A propos',
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.asset(
-              "assets/images/instagram.png",
-              width: 20,
-            ),
-            SizedBox(
-              width: 10,
-            ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
-              child: TextFormField(
-                keyboardType: TextInputType.text,
-                controller: igcontroller,
-                style: GoogleFonts.poppins(
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  color: Colors.black,
+            // Text("Un bio sympa ouvre la porte à des connexions authentiques" , style: GoogleFonts.teko(
+            //     color: Color(0xFF202226),
+            //     fontSize: 22,
+            //     fontWeight: FontWeight.w600,
+            //   ),),
+            TextFormField(
+              keyboardType: TextInputType.text,
+              controller: biocontroller,
+              maxLines: 3,
+              maxLength: 500,
+              
+              style: GoogleFonts.poppins(
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
                 ),
-                decoration: InputDecoration(
-                  border: UnderlineInputBorder(),
-                  labelText: 'Compte instagram',
-                ),
+                color: Colors.black,
               ),
+              decoration: const InputDecoration(
+                    floatingLabelBehavior:FloatingLabelBehavior.always,
+
+                labelText: 'A propos',
+                hintText: "Un bon partenaire commence par une bonne présentation. 🏅 Partage qui tu es et ce que tu cherches !",
+                border: UnderlineInputBorder(),
+                // labelText: 'A propos',
+              ),
+              
             ),
           ],
         ),
         SizedBox(
-          height: 30,
+          height: 10,
         ),
+        
       ],
     );
   }

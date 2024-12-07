@@ -13,5 +13,6 @@ class AppConstants {
   //final String serverUrl = "http://10.0.2.2:3000";
   final String serverUrl = "https://server.sportopia.tn";
 
-  final int likesLimit = 20;
+  // final String serverUrl = "http://192.168.100.33:3000";
+  final int likesLimit = 50;
 }

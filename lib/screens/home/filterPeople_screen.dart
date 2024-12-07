@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testapp/app_const.dart';
 import 'package:testapp/providers/data_provider.dart';
+import 'package:testapp/widgets/TextButton.dart';
 
 class FilterPeopleScreen extends StatefulWidget {
   const FilterPeopleScreen({super.key});
@@ -164,20 +165,20 @@ class _FilterPeopleScreenState extends State<FilterPeopleScreen> {
                       label: Text(
                         'Homme',
                         style: TextStyle(
-                            color: gender == 'homme'
+                            color: gender == 'Homme'
                                 ? Colors.white
                                 : Colors.black),
                       ),
-                      selected: gender == 'homme',
+                      selected: gender == 'Homme',
                       onSelected: (selected) {
                         setState(() {
-                          gender = selected ? 'homme' : '';
+                          gender = selected ? 'Homme' : '';
                           isUpdated = true;
                         });
                       },
                       side: BorderSide(
                           color: AppConstants.line.withOpacity(0.32)),
-                      backgroundColor: gender == 'homme'
+                      backgroundColor: gender == 'Homme'
                           ? AppConstants.critical
                           : Colors.transparent,
                       selectedColor: AppConstants.critical,
@@ -189,20 +190,20 @@ class _FilterPeopleScreenState extends State<FilterPeopleScreen> {
                       label: Text(
                         'Femme',
                         style: TextStyle(
-                            color: gender == 'femme'
+                            color: gender == 'Femme'
                                 ? Colors.white
                                 : Colors.black),
                       ),
-                      selected: gender == 'femme',
+                      selected: gender == 'Femme',
                       onSelected: (selected) {
                         setState(() {
-                          gender = selected ? 'femme' : '';
+                          gender = selected ? 'Femme' : '';
                           isUpdated = true;
                         });
                       },
                       side: BorderSide(
                           color: AppConstants.line.withOpacity(0.32)),
-                      backgroundColor: gender == 'femme'
+                      backgroundColor: gender == 'Femme'
                           ? AppConstants.critical
                           : Colors.transparent,
                       selectedColor: AppConstants.critical,
@@ -531,7 +532,7 @@ class _FilterPeopleScreenState extends State<FilterPeopleScreen> {
               Container(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.07,
-                child: TextButton(
+                child:TextButtonWithLoader(
                   onPressed: () async {
                     Provider.of<DataProvider>(context, listen: false)
                         .setFilters(
@@ -548,24 +549,12 @@ class _FilterPeopleScreenState extends State<FilterPeopleScreen> {
                             selectedsport,
                             selectedItems);
                     await Provider.of<DataProvider>(context, listen: false)
-                        .getClients();
-                    Navigator.of(context).pop(isUpdated);
+                        .getClients().then((value) {
+                          Navigator.of(context).pop(true);
+                        });
                   },
-                  style: TextButton.styleFrom(
-                      backgroundColor: AppConstants.critical,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(35))),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(80, 5, 80, 5),
-                    child: Text('Appliquer les filtres',
-                        style: GoogleFonts.teko(
-                            textStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppConstants.white,
-                        ))),
-                  ),
-                ),
+                  text: "Appliquer les filtres",
+                  )
               ),
               SizedBox(
                 height: 50,
@@ -616,7 +605,6 @@ class _FilterPeopleScreenState extends State<FilterPeopleScreen> {
       alignment: WrapAlignment.start,
       children: [
         ...choices.map((e) {
-          print(e) ; 
           return Padding(
             padding: const EdgeInsets.all(2.0),
             child: ChoiceChip(

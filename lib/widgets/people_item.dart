@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -12,21 +13,16 @@ class PeopleItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: ClipOval(
-        child: Image.network(
-          AppConstants().serverUrl + client.imgUrl,
-          width: 40,
-          height: 40,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Image.asset(
-              "assets/images/profile.jpg",
-              width: 40,
-              height: 40,
-              fit: BoxFit.cover,
-            );
-          },
-        ),
-      ),
+        child: CachedNetworkImage(
+                            imageUrl: AppConstants().serverUrl + client!.imgUrl,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                Icon(Icons.error),
+                          )),
       title: Row(
         children: [
           Text(
@@ -42,11 +38,7 @@ class PeopleItem extends StatelessWidget {
           SizedBox(
             width: 5,
           ),
-          Icon(
-            Icons.verified,
-            size: 15,
-            color: Color(0xFF3897F0),
-          )
+         
         ],
       ),
       // subtitle: Text(

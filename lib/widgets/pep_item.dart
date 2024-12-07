@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,32 +10,81 @@ import 'package:testapp/providers/data_provider.dart';
 import 'package:testapp/screens/matching/matchedFilter_screen.dart';
 import 'package:testapp/widgets/RotateDismissible.dart';
 
-class PepItem extends StatelessWidget {
+class PepItem extends StatefulWidget {
   final Client client;
   final double distance;
   final Function removeClient;
-  const PepItem(
-      {super.key,
-      required this.client,
-      required this.distance,
-      required this.removeClient});
+
+  const PepItem({
+    super.key,
+    required this.client,
+    required this.distance,
+    required this.removeClient,
+  });
+
+  @override
+  State<PepItem> createState() => _PepItemState();
+}
+
+class _PepItemState extends State<PepItem> {
+  bool isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+
     return RotatingDismissible(
-      key: ValueKey(client.id),
+      key: Key(widget.client.id),
       onDismissed: (direction) async {
+        // Remove the client immediately to avoid the error
+
+        // Handle swipe directions
         if (direction == DismissDirection.endToStart) {
-          print("Swiped left on card ");
-          removeClient(client);
+          widget.removeClient(widget.client);
         } else if (direction == DismissDirection.startToEnd) {
-          _handleMatch(context);
+          // Right swipe: Handle like action
+          final likesCount =
+              await Provider.of<DataProvider>(context, listen: false)
+                  .getLikesToday();
+          if (likesCount >= AppConstants().likesLimit) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Center(child: Text('Limite de likes')),
+                  content: const Text(
+                      "Vous avez atteint la limite de likes par jour"),
+                  actions: [
+                    Center(
+                      child: ElevatedButton(
+                        child: const Text('OK'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            // Perform the like action
+            await Provider.of<DataProvider>(context, listen: false)
+                .like(widget.client.id)
+                .then((v) {
+              if (v != null) {
+                Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (BuildContext context) => MatchedFilterScreen(
+                    client: widget.client,
+                  ),
+                ));
+              }
+              widget.removeClient(widget.client);
+            });
+          }
         }
-        
-        ;
       },
-    child: Padding(
+      child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Container(
           height: size.height * 0.75,
@@ -48,8 +98,9 @@ class PepItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   image: DecorationImage(
-                    image:
-                        NetworkImage(AppConstants().serverUrl + client.imgUrl),
+                    image: CachedNetworkImageProvider(
+                      AppConstants().serverUrl + widget.client.imgUrl,
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -74,7 +125,7 @@ class PepItem extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Text(
-                              client.fullName,
+                              widget.client.fullName,
                               style: GoogleFonts.teko(
                                 textStyle: const TextStyle(
                                   fontSize: 36,
@@ -86,7 +137,7 @@ class PepItem extends StatelessWidget {
                             Row(
                               children: [
                                 Text(
-                                  "${client.age.toString()} Ans",
+                                  "${widget.client.age} Ans",
                                   style: GoogleFonts.poppins(
                                     textStyle: const TextStyle(
                                       fontSize: 16,
@@ -99,12 +150,14 @@ class PepItem extends StatelessWidget {
                                   width: 10,
                                 ),
                                 Text(
-                                  '- À ${distance.toStringAsFixed(0)} Km',
+                                  '- À ${widget.distance.toStringAsFixed(0)} Km',
                                   style: GoogleFonts.poppins(
-                                      textStyle: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold),
-                                      color: AppConstants.white),
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    color: AppConstants.white,
+                                  ),
                                 ),
                               ],
                             ),
@@ -122,7 +175,7 @@ class PepItem extends StatelessWidget {
                   children: [
                     InkWell(
                       onTap: () {
-                        removeClient(client);
+                        widget.removeClient(widget.client);
                       },
                       child: Container(
                         width: 55,
@@ -149,22 +202,33 @@ class PepItem extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                          icon: SvgPicture.asset(
-                            'assets/images/heart.svg',
-                            width: 35,
-                            height: 35,
-                            color: const Color(0xFFFD4755),
-                          ),
-                          onPressed: () {
-                            _handleMatch(context);
-                          }),
+                        icon: SvgPicture.asset(
+                          'assets/images/heart.svg',
+                          width: 35,
+                          height: 35,
+                          color: const Color(0xFFFD4755),
+                        ),
+                        onPressed: () async {
+                          if (!isProcessing) {
+                            setState(() {
+                              isProcessing = true;
+                            });
+                            await _handleMatch(context);
+                            widget.removeClient(widget.client);
+
+                            setState(() {
+                              isProcessing = false;
+                            });
+                          }
+                        },
+                      ),
                     ),
                     const SizedBox(
                       width: 20,
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -172,9 +236,12 @@ class PepItem extends StatelessWidget {
     );
   }
 
-  _handleMatch(BuildContext context) async {
-    final likesCount =
-        await Provider.of<DataProvider>(context, listen: false).getLikesToday();
+  Future<void> _handleMatch(BuildContext context) async {
+    final dataProvider = Provider.of<DataProvider>(context, listen: false);
+
+    final likesCount = await dataProvider.getLikesToday();
+    if (!mounted) return;
+
     if (likesCount >= AppConstants().likesLimit) {
       showDialog(
         context: context,
@@ -197,14 +264,13 @@ class PepItem extends StatelessWidget {
         },
       );
     } else {
-      removeClient(client);
-      final matched = await Provider.of<DataProvider>(context, listen: false)
-          .like(client.id);
+      final matched = await dataProvider.like(widget.client.id);
+      if (!mounted) return;
 
       if (matched != null) {
         Navigator.of(context).push(MaterialPageRoute<void>(
           builder: (BuildContext context) => MatchedFilterScreen(
-            client: client,
+            client: widget.client,
           ),
         ));
       }

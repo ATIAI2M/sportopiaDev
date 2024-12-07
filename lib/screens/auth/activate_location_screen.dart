@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:testapp/app_const.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:testapp/widgets/TextButton.dart';
 
 class ActivateLocationScreen extends StatefulWidget {
   const ActivateLocationScreen({
@@ -117,25 +118,12 @@ class _ActivateLocationScreenState extends State<ActivateLocationScreen> {
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.07,
-                  child: TextButton(
-                    onPressed: () async {
+                  child: TextButtonWithLoader(onPressed: () async {
                       final position = await _determinePosition(context);
                       if (position != null) {
                         Navigator.of(context).pop();
                       }
-                    },
-                    style: TextButton.styleFrom(
-                        backgroundColor: AppConstants.critical,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(35))),
-                    child: Text('Activer',
-                        style: GoogleFonts.poppins(
-                            textStyle: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: AppConstants.white,
-                        ))),
-                  ),
+                    }, text: "Activer")
                 ),
               ),
             ],

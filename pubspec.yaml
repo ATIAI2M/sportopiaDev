@@ -58,6 +58,9 @@ dependencies:
   url_launcher: ^6.1.10
   another_flushbar:
   flutter_card_swiper: ^7.0.2
+  image_cropper: ^8.0.2
+  cached_network_image: ^3.2.3
+
 
 dev_dependencies:
   flutter_test:

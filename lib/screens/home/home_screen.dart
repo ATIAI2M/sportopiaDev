@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:testapp/app_const.dart';
+import 'package:testapp/functions/showsnack.dart';
 import 'package:testapp/models/client.dart';
 import 'package:testapp/providers/data_provider.dart';
 import 'package:testapp/screens/matching/peopleProfile_screen.dart';
@@ -38,7 +39,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void removeClient(Client cl) {
     if (likedClients.isNotEmpty) {
-      likedClients.remove(cl);
+           Provider.of<DataProvider>(context, listen: false).deleteLike(cl.id).then((value) { 
+              likedClients.remove(cl);
+            
+
+     }).catchError((err){
+       //show toast
+     });
+
     }
 
     setState(() {});
@@ -148,6 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 100,
                           child: ListView.builder(
                             shrinkWrap: true,
+                            
                             scrollDirection: Axis.horizontal,
                             itemCount: matchedClients.length,
                             itemBuilder: (context, int index) {
@@ -157,20 +166,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               //     sortedClients.values.toList()[index];
                               return GestureDetector(
                                 onTap: () {
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (context) =>
-                                  //             PeopleProfileScreen(
-                                  //               client: matchedClients[index],
-                                  //               isMatched: true,
-                                  //             )));
+                             
                                 },
-                                child: ProfileItem(
-                                  client: matchedClients[index],
-                                  isMatched: true,
-                                  //distance: 0,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                  child: ProfileItem(
+                                    client: matchedClients[index],
+                                    isMatched: true,
+                                    //distance: 0,
+                                  ),
                                 ),
+                               
                               );
                             },
                           ),
