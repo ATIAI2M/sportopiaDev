@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:testapp/app_const.dart';
 import 'package:testapp/models/chat.dart';
 import 'package:testapp/models/client.dart';
 import 'package:testapp/models/matching.dart';
@@ -47,6 +48,7 @@ class DataProvider with ChangeNotifier {
   String level = '';
   List<String> selectedsport = [];
   List<String> selectedItems = [];
+  bool isAll=true;
   late IO.Socket socket;
 
   DataProvider() {
@@ -108,7 +110,9 @@ class DataProvider with ChangeNotifier {
     selectedsport = selectedsportVal;
     selectedItems = selectedItemsVal;
   }
-
+  setAll(bool val){
+    isAll=val;
+  }
   Future<void> load() async {
     await getMatchings();
     await getClients();
@@ -171,7 +175,6 @@ class DataProvider with ChangeNotifier {
     } catch (e) {
       print(e.toString());
     }
-    //notifyListeners();
   }
 
   Future<List<Message>> getMessages(String id) async {
@@ -200,9 +203,9 @@ class DataProvider with ChangeNotifier {
     return messages;
   }
 
-  Future<void> getClients() async {
+  Future<void> getClients({bool all=false}) async {
     final url = '$serverUrl/api/clients/position/';
-    
+
     final response = await http.post(Uri.parse(url),
         headers: {
           "x-access-token": user.accessToken,
@@ -211,7 +214,7 @@ class DataProvider with ChangeNotifier {
         body: jsonEncode({
           "latitude": client!.position["coordinates"][1],
           "longitude": client!.position["coordinates"][0],
-          "maxDistance": distance.round(),
+          "maxDistance": all == true ? 50000 :distance.round(),
           "gender": gender,
           "minAge": minAge.round(),
           "maxAge": maxAge.round(),
@@ -221,31 +224,11 @@ class DataProvider with ChangeNotifier {
           "frequency": frequency,
           "animal": animal,
           "club": club,
-          "sports": selectedsport.isEmpty ? null : selectedsport,
+          "sports": all==true ? AppConstants().sports: selectedsport.isEmpty ? null : selectedsport,
           "items": selectedItems,
           "language": language
         }));
-       print("r------");
-       print(jsonEncode({
-          "latitude": client!.position["coordinates"][1],
-          "longitude": client!.position["coordinates"][0],
-          "maxDistance": distance.round(),
-          "gender": gender, //iwant to uppercase the first letter
-          
-          
-          "minAge": minAge.round(),
-          "maxAge": maxAge.round(),
-          "id": client!.id,
-          "goal": goal,
-          "level": level,
-          "frequency": frequency,
-          "animal": animal,
-          "club": club,
-          "sports": selectedsport.isEmpty ? null : selectedsport,
-          "items": selectedItems,
-          "language": language
-        }));
-      
+    
 
     try {
      
@@ -254,7 +237,6 @@ class DataProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         sortedClients.clear();
         clients.clear();
-        print(data);
 
         data.forEach((element) {
          
@@ -272,7 +254,6 @@ class DataProvider with ChangeNotifier {
     } catch (e) {
       print(e.toString());
     }
-    notifyListeners();
   }
 
   Future<void> getMatchings() async {
@@ -313,7 +294,8 @@ Future<void> deleteLike(String id) async {
       });
       print(res.body);
       await getMatchings();
-            notifyListeners();
+      await getLikes() ; 
+      notifyListeners();
 
     } catch (e) {
       print(e.toString());

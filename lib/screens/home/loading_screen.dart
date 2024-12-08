@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -20,338 +21,312 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-  Map<Client, double> sortedClients = {};
-  Map<Client, double> limitedSortedClients = {};
+  List<MapEntry<Client, double>> randomizedClients = [];
+  bool isFetching = true;
+  bool noMoreResults = false;
+  bool isAll = false;
 
-  int limit = 1;
-  int startingIndex = 0;
 
-  bool isClicked = false;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    load();
-    Provider.of<DataProvider>(context, listen: false).getLikes();
-    if (limitedSortedClients.isNotEmpty) {
-
-    }
-  }
-  
-
-
-  void limitClients() {
-    limitedSortedClients.clear();
-
-    int remainingClients = sortedClients.length - startingIndex;
-    int endingIndex =
-        startingIndex + (remainingClients < limit ? remainingClients : limit);
-
-    List<MapEntry<Client, double>> clientsSlice =
-        sortedClients.entries.toList().sublist(startingIndex, endingIndex);
-
-    for (var entry in clientsSlice) {
-      limitedSortedClients[entry.key] = entry.value;
-    }
-    if (limitedSortedClients.isNotEmpty) {
-      // _secondsRemaining = _countdownDurationSeconds;
-      // startCountdown();
-    }
-    startingIndex = endingIndex;
+    loadClients();
   }
 
-  void removeClientAndFillIfNeeded(Client cl) {
-    if (limitedSortedClients.isNotEmpty) {
-      limitedSortedClients.remove(cl);
-    }
-    if (limitedSortedClients.isEmpty) {
-      limitClients();
-    }
-    setState(() {});
-  }
-  
-  Future<void> load() async {
-    await Provider.of<DataProvider>(context, listen: false).getClients();
-    limitClients();
+void randomizeClients(Map<Client, double> clients) {
+  final random = Random();
+  final uniqueClients = clients.entries.toSet().toList(); 
+  uniqueClients.shuffle(random);
+
+  setState(() {
+    randomizedClients = uniqueClients;
+  });
+
+  if (randomizedClients.isEmpty) {
     setState(() {
-      
+      noMoreResults = true;
+    });
+  }
+}
+
+void removeClientAndRefresh(Client client) {
+  randomizedClients.removeWhere((entry) => entry.key == client);
+
+  if(randomizedClients.length == 0  && isAll){
+    setState(() {
+      noMoreResults = true;
     });
   }
 
-  @override   
-  Widget build(BuildContext context) {
-    // sortedClients = Provider.of<DataProvider>(context).sortedClients;
-    // final likes = Provider.of<DataProvider>(context).likedClients;
+  else if (randomizedClients.isEmpty && !isAll) {
+    loadClients(all: true); 
+    setState(() {
+      isAll = true;
+    });
+  } else if (randomizedClients.isEmpty) {
+    setState(() {
+      noMoreResults = true;
+    });
+  } else {
+    setState(() {}); // Refresh UI
+  }
+}
 
-    return Consumer<DataProvider>( 
-    builder: (context, dataProvider, child) {
-      sortedClients = dataProvider.sortedClients;
-      final likes = dataProvider.likedClients;
-      return  SafeArea(
-        child: Scaffold(
-          body: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+Future<void> loadClients({bool all = false}) async {
+  setState(() {
+    isFetching = true;
+    noMoreResults = false;
+  });
+
+  final dataProvider = Provider.of<DataProvider>(context, listen: false);
+
+  await dataProvider.getClients(all: all); 
+  final sortedClients = dataProvider.sortedClients;
+
+  if (sortedClients.isEmpty && !all) {
+    setState(() {
+      isAll = true;
+    });
+    await loadClients(all: true);
+  } else if (sortedClients.isEmpty) {
+    setState(() {
+      noMoreResults = true;
+    });
+  } else {
+    randomizeClients(sortedClients);
+  }
+
+  setState(() {
+    isFetching = false;
+  });
+}
+
+  @override
+  Widget build(BuildContext context) {
+    final likes = Provider.of<DataProvider>(context, listen: true).likedClients;
+
+    return Consumer<DataProvider>(
+      builder: (context, dataProvider, child) {
+        return SafeArea(
+          child: Scaffold(
+            body: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _buildHeader(likes),
+                const SizedBox(height: 10),
+                if (isFetching)
+                  Expanded(
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if ( isAll==true && noMoreResults)
+                  _buildNoMoreResults()
+                else
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: false,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: randomizedClients.length,
+                      itemBuilder: (context, index) {
+                        print(index);
+                        final entry = randomizedClients[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PeopleProfileScreen(
+                                  client: entry.key,
+                                  isMatched: false,
+                                ),
+                              ),
+                            );
+                          },
+                          child: PepItem(
+                            client: entry.key,
+                            distance: entry.value,
+                            removeClient: (client) {
+                              removeClientAndRefresh(client);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHeader(List<Client> likes) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(28, 32, 28, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Trouvez votre partenaire'.toUpperCase(),
+            style: GoogleFonts.teko(
+              textStyle: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppConstants.black,
+              ),
+            ),
+          ),
+          Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(28, 32, 28, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'trouvez votre partenaire'
-                          .toUpperCase(),
-                      style: GoogleFonts.teko(
-                        textStyle: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppConstants.black,
-                        ),
+              Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(3),
+                    child: Container(
+                      width: 45,
+                      height: 45,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF3287FF),
+                        shape: BoxShape.circle,
                       ),
-                    ),
-                    Row(
-                      children: [
-                        Stack(
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(3),
-                              child: Container(
-                                width: 45,
-                                height: 45,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF3287FF),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: IconButton(
-                                  icon: SvgPicture.asset(
-                                    'assets/images/Add.svg',
-                                    color: const Color(0xFFFFFFFF),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => const LikesScreen()));
-                                  },
-                                  // Icons.tune,
-                                  // size: 24,
-                                  // color: Color(0xFF848484),
-                                ),
-                              ),
-                            ),
-                            if (likes.isNotEmpty)
-                              Positioned(
-                                  right: 0,
-                                  top: 0,
-                                  child: CircleAvatar(
-                                    radius: 8,
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    child: Center(
-                                      child: Text(
-                                        likes.length > 9
-                                            ? "9+"
-                                            : likes.length.toString(),
-                                        style: const TextStyle(
-                                            color: Colors.white, fontSize: 8),
-                                      ),
-                                    ),
-                                  ))
-                          ],
+                      child: IconButton(
+                        icon: SvgPicture.asset(
+                          'assets/images/Add.svg',
+                          color: const Color(0xFFFFFFFF),
                         ),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Container(
-                          width: 45,
-                          height: 45,
-                          decoration: const BoxDecoration(
-                            color: AppConstants.line,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            icon: SvgPicture.asset(
-                              'assets/images/filter.svg',
-                              color: const Color(0xFF848484),
-                            ),
-                            onPressed: () async {
-                              final isUpdated = await Navigator.of(context)
-                                  .push(MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    const FilterPeopleScreen(),
-                              ));
-                              print(isUpdated);
-                              if (isUpdated) {
-                                startingIndex = 0;
-                                limitClients();
-                                setState(() {});
-                              }
-                            },
-                            // Icons.tune,
-                            // size: 24,
-                            // color: Color(0xFF848484),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              //if (limitedSortedClients.isNotEmpty)
-              // Center(
-              //   child: Container(
-              //     height: 45,
-              //     decoration: BoxDecoration(
-              //       color: Colors.black,
-              //       borderRadius: BorderRadius.circular(50),
-              //     ),
-              //     width: MediaQuery.of(context).size.width * 0.8,
-              //     child: Center(
-              //       child: Text(
-              //         'Il vous reste ${_secondsRemaining ~/ 60}:${_secondsRemaining % 60} min pour matcher',
-              //         style: TextStyle(fontSize: 16, color: Colors.white),
-              //       ),
-              //     ),
-              //   ),
-              // ),
-              // SizedBox(
-              //   height: 30,
-              // ),
-              limitedSortedClients.isEmpty
-                  ? Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          //Expanded(child: Container()),
-                          ClipOval(
-                            child: Image.asset(
-                              'assets/images/loading_img.png',
-                              height: 250,
-                              width: 250,
-                            ),
-                          ),
-                          // Expanded(child: Container()),
-                          Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-                                child: Text(
-                                  'À la recherche de votre partenaire idéal'
-                                      .toUpperCase(),
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.teko(
-                                    textStyle: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppConstants.black,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                'Envisagez de modifier les filtres',
-                                style: GoogleFonts.poppins(
-                                    textStyle: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w400),
-                                    color: AppConstants.gray1),
-                              ),
-                            ],
-                          ),
-                          // Expanded(child: Container()),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(28, 32, 28, 0),
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              height: MediaQuery.of(context).size.height * 0.07,
-                              child: isClicked ? Container() :  TextButton(
-                                
-                                onPressed: () async {
-                                  setState(() {
-                                    isClicked = true;
-                                  });
-                                  
-                                  final isUpdated = await Navigator.of(context)
-                                      .push(MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        const FilterPeopleScreen(),
-                                  ));
-                                  if (isUpdated && isUpdated != null) {
-                                    startingIndex = 0;
-                                    limitClients();
-                                    setState(() {
-                                      isClicked = false;
-                                    });
-                                  }
-                                },
-                                style: TextButton.styleFrom(
-                                  backgroundColor: AppConstants.critical,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(35),
-                                    side: const BorderSide(color: Colors.white),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Mettre à jour les filtres',
-                                  style: GoogleFonts.poppins(
-                                    textStyle: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppConstants.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          // Expanded(child: Container()),
-                        ],
-                      ),
-                    )
-                  : Expanded(
-                      // height: 200,
-                      // width: double.infinity,
-                      child: ListView.builder(
-                        shrinkWrap: false,
-                        scrollDirection: Axis.vertical,
-                        itemCount: limitedSortedClients.length,
-                        itemBuilder: (context, int index) {
-                          final client =
-                              limitedSortedClients.keys.toList()[index];
-                          final distance =
-                              limitedSortedClients.values.toList()[index];
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => PeopleProfileScreen(
-                                            client: client,
-                                            isMatched: false,
-                                          )));
-                            },
-                            child: PepItem(
-                              client: client,
-                              distance: distance,
-                              removeClient: (client){
-                                removeClientAndFillIfNeeded(client);
-                              },
-                            ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (_) => const LikesScreen()),
                           );
                         },
                       ),
                     ),
-              const SizedBox(
-                height: 20,
+                  ),
+                  if (likes.isNotEmpty)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: CircleAvatar(
+                        radius: 8,
+                        backgroundColor: Theme.of(context).primaryColor,
+                        child: Center(
+                          child: Text(
+                            likes.length > 9 ? "9+" : likes.length.toString(),
+                            style: const TextStyle(color: Colors.white, fontSize: 8),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 20),
+              Container(
+                width: 45,
+                height: 45,
+                decoration: const BoxDecoration(
+                  color: AppConstants.line,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: SvgPicture.asset(
+                    'assets/images/filter.svg',
+                    color: const Color(0xFF848484),
+                  ),
+                  onPressed: () async {
+                    final isUpdated = await Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const FilterPeopleScreen()),
+                    );
+                    if (isUpdated != null && isUpdated) {
+                      loadClients();
+                    }
+                  },
+                ),
               ),
             ],
           ),
-        ),
-      );
-    }
-    ) ;
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNoMoreResults() {
+    return Expanded(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ClipOval(
+            child: Image.asset(
+              'assets/images/loading_img.png',
+              height: 250,
+              width: 250,
+            ),
+          ),
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                child: Text(
+                  'À la recherche de votre partenaire idéal'.toUpperCase(),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.teko(
+                    textStyle: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: AppConstants.black,
+                    ),
+                  ),
+                ),
+              ),
+              Text(
+                'Envisagez de modifier les filtres',
+                style: GoogleFonts.poppins(
+                  textStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  color: AppConstants.gray1,
+                ),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(28, 32, 28, 0),
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.07,
+              child: TextButton(
+                onPressed: () async {
+                  final isUpdated = await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const FilterPeopleScreen()),
+                  );
+                  if (isUpdated != null && isUpdated) {
+                    loadClients();
+                  }
+                },
+                style: TextButton.styleFrom(
+                  backgroundColor: AppConstants.critical,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(35),
+                    side: const BorderSide(color: Colors.white),
+                  ),
+                ),
+                child: Text(
+                  'Mettre à jour les filtres',
+                  style: GoogleFonts.poppins(
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: AppConstants.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
