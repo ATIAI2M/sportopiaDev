@@ -171,6 +171,7 @@ class DataProvider with ChangeNotifier {
 
           chatClients.add(chatclient);
         });
+        notifyListeners();
       }
     } catch (e) {
       print(e.toString());
@@ -635,6 +636,7 @@ Future<void> deleteLike(String id) async {
             "Nouveau Like", "Quelqu'un vous fait une like", id);
       }
       await getLikes();
+      notifyListeners();
     } catch (e) {
       print(e.toString());
     }

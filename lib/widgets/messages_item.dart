@@ -57,19 +57,7 @@ class _MessagesItemState extends State<MessagesItem> {
       child: ListTile(
         tileColor:  widget.chat.unseenCount > 0 ? Colors.grey.shade100 : Colors.white,
         onTap: () async {
-          if(widget.chat.unseenCount > 0){
-             
-              var userId = Provider.of<DataProvider>(context, listen: false).user.id;
-              await Provider.of<DataProvider>(context, listen: false).markMessagesAsSeen(userId, widget.chat.id).then((value) {
-                print("Messages marked as seen");
-                Navigator.of(context).push(MaterialPageRoute<void>(
-                  builder: (BuildContext context) => MessagesScreen(
-                    chat: widget.chat,
-                    client: widget.client,
-                  ),
-                ));
-              });
-          }else{
+      
             Navigator.of(context).push(MaterialPageRoute<void>(
               builder: (BuildContext context) => MessagesScreen(
                 chat: widget.chat,
@@ -80,7 +68,7 @@ class _MessagesItemState extends State<MessagesItem> {
             print("Unseen count: ${widget.chat.unseenCount}");
           }
          
-        },
+        ,
         leading: ClipOval(
           child: Image.network(
             AppConstants().serverUrl + widget.client.imgUrl,

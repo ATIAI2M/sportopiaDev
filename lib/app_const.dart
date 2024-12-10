@@ -14,7 +14,7 @@ class AppConstants {
   final String serverUrl = "https://server.sportopia.tn";
 
   // final String serverUrl = "http://192.168.100.33:3000";
-  final int likesLimit = 50;
+  final int likesLimit = 150;
 
   final List<String> sports = [
     "Tennis",

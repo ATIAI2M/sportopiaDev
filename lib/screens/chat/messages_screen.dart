@@ -55,7 +55,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
     Provider.of<DataProvider>(context, listen: false).connectToSocket();
     Provider.of<DataProvider>(context, listen: false)
         .getMessages(widget.chat.id)
-        .then((value) {
+        .then((value) async {
+             if(widget.chat.unseenCount > 0){
+     await Provider.of<DataProvider>(context, listen: false).markMessagesAsSeen(Provider.of<DataProvider>(context,listen: false).user.id, widget.chat.id);
+    }
       setState(() {
         print(value);
         messages = value;
@@ -64,9 +67,10 @@ class _MessagesScreenState extends State<MessagesScreen> {
     });
 
     print(client!.id);
-   socket.on(client!.id, (data) {
+   socket.on(client!.id, (data) async {
   if (mounted) {
-    Provider.of<DataProvider>(context, listen: false)
+ 
+   await Provider.of<DataProvider>(context, listen: false)
         .getMessages(widget.chat.id)
         .then((value) {
       if (mounted) {

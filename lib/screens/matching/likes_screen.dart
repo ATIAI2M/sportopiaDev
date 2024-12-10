@@ -117,6 +117,9 @@ class _LikesScreenState extends State<LikesScreen> {
                                     )));
                       },
                       child: LikeItem(
+                        click: (cl){
+                           likedClients.remove(cl);
+                        },
                         client: likedClients[index],
                         removeClient: removeClient,
                       ));

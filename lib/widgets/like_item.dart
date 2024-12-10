@@ -6,14 +6,17 @@ import 'package:testapp/app_const.dart';
 import 'package:testapp/models/client.dart';
 import 'package:testapp/providers/data_provider.dart';
 import 'package:testapp/screens/matching/matchedFilter_screen.dart';
+import 'package:testapp/main.dart';
 
 class LikeItem extends StatelessWidget {
   final Client client;
+  final Function click;
   final Function removeClient;
-  const LikeItem({super.key, required this.client, required this.removeClient});
+  const LikeItem({super.key, required this.client, required this.removeClient, required this.click});
 
   @override
   Widget build(BuildContext context) {
+
     return ListTile(
       leading: ClipOval(
         child: Image.network(
@@ -123,17 +126,20 @@ class LikeItem extends StatelessWidget {
                       },
                     );
                   } else {
+                    click(client);
                     final matched =
                         await Provider.of<DataProvider>(context, listen: false)
                             .like(client.id);
 
-                    if (matched != null) {
-                      Navigator.of(context).push(MaterialPageRoute<void>(
-                        builder: (BuildContext context) => MatchedFilterScreen(
-                          client: client,
-                        ),
-                      ));
-                    }
+                   if (matched != null) {
+  navigatorKey.currentState?.push(
+    MaterialPageRoute<void>(
+      builder: (BuildContext context) => MatchedFilterScreen(
+        client: client,
+      ),
+    ),
+  );
+}
                   }
                 },
               ),

@@ -26,138 +26,136 @@ class _LoadingScreenState extends State<LoadingScreen> {
   bool noMoreResults = false;
   bool isAll = false;
 
-
   @override
   void initState() {
     super.initState();
     loadClients();
   }
 
-void randomizeClients(Map<Client, double> clients) {
-  final random = Random();
-  final uniqueClients = clients.entries.toSet().toList(); 
-  uniqueClients.shuffle(random);
+  void randomizeClients(Map<Client, double> clients) {
+    final random = Random();
 
-  setState(() {
-    randomizedClients = uniqueClients;
-  });
+    // Separate clients into two groups: nearby and distant
+    final nearbyClients =
+        clients.entries.where((entry) => entry.value <= 500).toList();
+    final distantClients =
+        clients.entries.where((entry) => entry.value > 500).toList();
 
-  if (randomizedClients.isEmpty) {
+    nearbyClients.shuffle(random);
+
+    distantClients.sort((a, b) => a.value.compareTo(b.value));
+
+    final combinedClients = nearbyClients + distantClients;
+
     setState(() {
-      noMoreResults = true;
+      randomizedClients = combinedClients;
     });
-  }
-}
 
-void removeClientAndRefresh(Client client) {
-  randomizedClients.removeWhere((entry) => entry.key == client);
-
-  if(randomizedClients.length == 0  && isAll){
-    setState(() {
-      noMoreResults = true;
-    });
-  }
-
-  else if (randomizedClients.isEmpty && !isAll) {
-    loadClients(all: true); 
-    setState(() {
-      isAll = true;
-    });
-  } else if (randomizedClients.isEmpty) {
-    setState(() {
-      noMoreResults = true;
-    });
-  } else {
-    setState(() {}); // Refresh UI
-  }
-}
-
-Future<void> loadClients({bool all = false}) async {
-  setState(() {
-    isFetching = true;
-    noMoreResults = false;
-  });
-
-  final dataProvider = Provider.of<DataProvider>(context, listen: false);
-
-  await dataProvider.getClients(all: all); 
-  final sortedClients = dataProvider.sortedClients;
-
-  if (sortedClients.isEmpty && !all) {
-    setState(() {
-      isAll = true;
-    });
-    await loadClients(all: true);
-  } else if (sortedClients.isEmpty) {
-    setState(() {
-      noMoreResults = true;
-    });
-  } else {
-    randomizeClients(sortedClients);
+    if (randomizedClients.isEmpty) {
+      setState(() {
+        noMoreResults = true;
+      });
+    }
   }
 
-  setState(() {
-    isFetching = false;
-  });
-}
+  void removeClientAndRefresh(Client client) {
+    setState(() {
+      randomizedClients.removeWhere((entry) => entry.key.id == client.id);
+    });
+
+    if (randomizedClients.isEmpty) {
+      if (isAll) {
+        setState(() {
+          noMoreResults = true;
+        });
+      } else {
+        loadClients(all: true);
+        setState(() {
+          isAll = true;
+        });
+      }
+    }
+  }
+
+  Future<void> loadClients({bool all = false}) async {
+    setState(() {
+      isFetching = true;
+      noMoreResults = false;
+    });
+
+    final dataProvider = Provider.of<DataProvider>(context, listen: false);
+    await dataProvider.getClients(all: all);
+
+    final sortedClients = dataProvider.sortedClients;
+    if (sortedClients.isEmpty && !all) {
+      await loadClients(all: true);
+    } else if (sortedClients.isEmpty) {
+      setState(() {
+        noMoreResults = true;
+      });
+    } else {
+      randomizeClients(sortedClients);
+    }
+
+    setState(() {
+      isFetching = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final likes = Provider.of<DataProvider>(context, listen: true).likedClients;
+    final likes =
+        Provider.of<DataProvider>(context, listen: false).likedClients;
 
-    return Consumer<DataProvider>(
-      builder: (context, dataProvider, child) {
-        return SafeArea(
-          child: Scaffold(
-            body: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                _buildHeader(likes),
-                const SizedBox(height: 10),
-                if (isFetching)
-                  Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if ( isAll==true && noMoreResults)
-                  _buildNoMoreResults()
-                else
-                  Expanded(
-                    child: ListView.builder(
-                      shrinkWrap: false,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: randomizedClients.length,
-                      itemBuilder: (context, index) {
-                        print(index);
-                        final entry = randomizedClients[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PeopleProfileScreen(
-                                  client: entry.key,
-                                  isMatched: false,
-                                ),
-                              ),
-                            );
-                          },
-                          child: PepItem(
-                            client: entry.key,
-                            distance: entry.value,
-                            removeClient: (client) {
-                              removeClientAndRefresh(client);
-                            },
+    return SafeArea(
+      child: Scaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildHeader(likes),
+            const SizedBox(height: 10),
+            if (isFetching)
+              const Expanded(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (isAll == true && noMoreResults)
+              _buildNoMoreResults()
+            else
+              Expanded(
+                child: PageView.builder(
+                  itemCount: randomizedClients.length,
+                  controller:
+                      PageController(viewportFraction: 1), // Full-screen swipe
+                  itemBuilder: (context, index) {
+                    final entry = randomizedClients[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PeopleProfileScreen(
+                              client: entry.key,
+                              isMatched: false,
+                            ),
                           ),
                         );
                       },
-                    ),
-                  ),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        );
-      },
+                      child: PepItem(
+                        key: ValueKey(entry.key.id),
+                        client: entry.key,
+                        distance: entry.value,
+                        removeClient: (client) {
+                          removeClientAndRefresh(client);
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 
@@ -198,7 +196,8 @@ Future<void> loadClients({bool all = false}) async {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const LikesScreen()),
+                            MaterialPageRoute(
+                                builder: (_) => const LikesScreen()),
                           );
                         },
                       ),
@@ -214,7 +213,8 @@ Future<void> loadClients({bool all = false}) async {
                         child: Center(
                           child: Text(
                             likes.length > 9 ? "9+" : likes.length.toString(),
-                            style: const TextStyle(color: Colors.white, fontSize: 8),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 8),
                           ),
                         ),
                       ),
@@ -236,7 +236,8 @@ Future<void> loadClients({bool all = false}) async {
                   ),
                   onPressed: () async {
                     final isUpdated = await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const FilterPeopleScreen()),
+                      MaterialPageRoute(
+                          builder: (_) => const FilterPeopleScreen()),
                     );
                     if (isUpdated != null && isUpdated) {
                       loadClients();
@@ -299,7 +300,8 @@ Future<void> loadClients({bool all = false}) async {
               child: TextButton(
                 onPressed: () async {
                   final isUpdated = await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const FilterPeopleScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const FilterPeopleScreen()),
                   );
                   if (isUpdated != null && isUpdated) {
                     loadClients();

@@ -10,6 +10,7 @@ import 'package:testapp/firebase_options.dart';
 import 'package:testapp/providers/data_provider.dart';
 import 'package:testapp/screens/chat/messages_screen.dart';
 import 'package:testapp/screens/launch/splash_screen.dart';
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 main() async {
   HttpOverrides.global = MyHttpOverrides();
@@ -48,7 +49,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
