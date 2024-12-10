@@ -17,6 +17,7 @@ class MessagesItem extends StatefulWidget {
 }
 class _MessagesItemState extends State<MessagesItem> {
  String formatDate(String dateString) {
+  print(dateString);
   final parts = dateString.split(' ');
   final dateParts = parts[0].split('-').map(int.parse).toList();
   final timeParts = parts[1].split(':').map(int.parse).toList();
