@@ -96,16 +96,45 @@ class _RateClientScreenState extends State<RateClientScreen> {
               ),
               Align(
                 alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: Text('Évaluer ${widget.client.fullName}'.toUpperCase(),
-                      style: GoogleFonts.teko(
-                        textStyle: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF202226),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(28, 0,0, 0),
+                      child: Container(
+                      
+                      // margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          width: 1,
+                          color: AppConstants.line,
                         ),
-                      )),
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_back_ios_new),
+                        onPressed: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        iconSize: 24,
+                        color: AppConstants.black,
+                      ),
+                                        ),
+                    ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Text('Évaluer ${widget.client.fullName}'.toUpperCase(),
+                          style: GoogleFonts.teko(
+                            textStyle: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF202226),
+                            ),
+                          )),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(

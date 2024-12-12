@@ -114,7 +114,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       },
     );
-  }
+  }  bool isShowed = true;
+    bool isConfirmShowed = true;
+
 
   @override
   Widget build(BuildContext context) {
@@ -345,7 +347,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(
                         height: 30,
                       ),
-                      TextFormField(
+                       TextFormField(
+                        obscureText: isShowed,
                         controller: passwordcontroller,
                         style: GoogleFonts.poppins(
                           textStyle: const TextStyle(
@@ -354,15 +357,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           color: AppConstants.gray1,
                         ),
-                        decoration: const InputDecoration(
-                          border: UnderlineInputBorder(),
-                          labelText: 'Créer un mot de passe',
-                        ),
+                        decoration: InputDecoration(
+                            border: UnderlineInputBorder(),
+                            labelText: 'Mot de passe',
+                            suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isShowed = !isShowed;
+                                  });
+                                },
+                                icon: Icon(isShowed
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined))),
                       ),
                       const SizedBox(
                         height: 30,
                       ),
                       TextFormField(
+                        obscureText: isConfirmShowed,
                         controller: confirmpasswordcontroller,
                         style: GoogleFonts.poppins(
                           textStyle: const TextStyle(
@@ -371,9 +383,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           color: AppConstants.gray1,
                         ),
-                        decoration: const InputDecoration(
-                          border: UnderlineInputBorder(),
+                        decoration:  InputDecoration(
+                          border: const UnderlineInputBorder(),
                           labelText: 'Confirmer le mot de passe',
+                          suffixIcon: IconButton(onPressed: (){
+                            setState(() {
+                              isConfirmShowed = !isConfirmShowed;
+                            });
+                          }, icon: Icon(isConfirmShowed ? Icons.visibility_outlined : Icons.visibility_off_outlined)),
                         ),
                       ),
                     ],

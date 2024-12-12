@@ -41,7 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
   GoogleSignIn _googleSignIn = GoogleSignIn();
 
   Future<UserCredential?> signInWithGoogle() async {
-    UserCredential? userCredential;
+      try {
+           UserCredential? userCredential;
     // Trigger the authentication flow
     final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
 
@@ -61,6 +62,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // Once signed in, return the UserCredential
     return userCredential;
+      } catch (e) {
+        print(e.toString());
+      }
   }
 
   /// Generates a cryptographically secure random nonce, to be included in a

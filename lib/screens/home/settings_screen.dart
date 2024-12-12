@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -70,19 +71,16 @@ class _SettingscreenState extends State<Settingscreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ClipOval(
-                      child: Image.network(
-                        AppConstants().serverUrl + client!.imgUrl,
-                        width: 96,
-                        height: 96,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            "assets/images/profile.jpg",
-                            width: 96,
-                            height: 96,
-                            fit: BoxFit.cover,
-                          );
-                        },
+                      child: CachedNetworkImage(
+                      
+                          imageUrl: AppConstants().serverUrl + client!.imgUrl,
+                          width: 96,
+                          height: 96,
+                          fit: BoxFit.cover,
+                           placeholder: (context, url) =>
+                                  CircularProgressIndicator(),
+                          
+                        
                       ),
                     ),
                     Column(
