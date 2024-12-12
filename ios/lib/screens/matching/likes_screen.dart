@@ -1,0 +1,134 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../../app_const.dart';
+import '../../functions/showsnack.dart';
+import '../../models/chat.dart';
+import '../../models/client.dart';
+import '../../providers/data_provider.dart';
+import 'peopleProfile_screen.dart';
+import '../../widgets/like_item.dart';
+import '../../widgets/messages_item.dart';
+import '../../widgets/people_item.dart';
+
+class LikesScreen extends StatefulWidget {
+  const LikesScreen({super.key});
+
+  @override
+  State<LikesScreen> createState() => _LikesScreenState();
+}
+
+class _LikesScreenState extends State<LikesScreen> {
+  List<Client> likedClients = [];
+
+  Client? client;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    client = Provider.of<DataProvider>(context, listen: false).client;
+    Provider.of<DataProvider>(context, listen: false).getLikes();
+  }
+
+  void removeClient(Client cl) {
+
+    if (likedClients.isNotEmpty) {
+     Provider.of<DataProvider>(context, listen: false).deleteLike(cl.id).then((v){
+      likedClients.remove(cl);
+      showSnackBar( "Supprimer like avec success",  context ,Colors.green) ; 
+
+     }).catchError((err){
+       //show toast
+        showSnackBar( "Erreur",  context ,Colors.red) ; 
+     });
+
+    }
+
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    likedClients = Provider.of<DataProvider>(context).likedClients;
+
+    return SafeArea(
+      child: Scaffold(
+        body: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(10, 30, 10, 0),
+              width: double.infinity,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      // margin: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          width: 1,
+                          color: AppConstants.gray2,
+                        ),
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_back_ios_new),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        iconSize: 24,
+                        color: AppConstants.black,
+                      ),
+                    ),
+                    Text(
+                      'demandes En attente'.toUpperCase(),
+                      style: GoogleFonts.teko(
+                        textStyle: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w600,
+                          color: AppConstants.black,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                  ]),
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            Expanded(
+              //height: 50,
+              child: ListView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: likedClients.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PeopleProfileScreen(
+                                      client: likedClients[index],
+                                      isMatched: false,
+                                    )));
+                      },
+                      child: LikeItem(
+                        click: (cl){
+                           likedClients.remove(cl);
+                        },
+                        client: likedClients[index],
+                        removeClient: removeClient,
+                      ));
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

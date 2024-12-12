@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "896622122947",
     "project_id": "sportopia-74ea2",
-    "storage_bucket": "sportopia-74ea2.appspot.com"
+    "storage_bucket": "sportopia-74ea2.firebasestorage.app"
   },
   "client": [
     {
@@ -13,6 +13,38 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "896622122947-8j2e1927kh8fpulguhcbhmga09te9umh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sportopia.app",
+            "certificate_hash": "f7963b59fbfb6b57f2176ec095bd64a598d45a84"
+          }
+        },
+        {
+          "client_id": "896622122947-i608knsvv43p89i6ji9810da4v2pv601.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sportopia.app",
+            "certificate_hash": "6b9fb44f45d3439fe9bf2ef6b983092be783fdc7"
+          }
+        },
+        {
+          "client_id": "896622122947-jetlalptj7c8er7or9u6786ejvqvnj4h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sportopia.app",
+            "certificate_hash": "0d44585176bbbac8386177b81bb018b8cb22c00c"
+          }
+        },
+        {
+          "client_id": "896622122947-l6hiuq3cccqfq8ue0ggmaatkk54q1vil.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sportopia.app",
+            "certificate_hash": "9bfeae3cf3afab6c05e749213bc074423d529461"
+          }
+        },
         {
           "client_id": "896622122947-qufgcredte931r2rdjj4hvgmh7s453db.apps.googleusercontent.com",
           "client_type": 1,
