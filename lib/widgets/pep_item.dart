@@ -205,9 +205,9 @@ class _PepItemState extends State<PepItem> {
                     ],
                   ),
                 ),
-                Expanded(
+                Container(
                   child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(10.0),
                     child: Align(
                       alignment: Alignment.bottomCenter,
                       child: Container(

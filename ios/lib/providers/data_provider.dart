@@ -986,6 +986,7 @@ Future<void> deleteLike(String id) async {
           sound: true,
         );
         if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+          await messaging.getAPNSToken() ; 
           final tempToken = await messaging.getToken();
           token = tempToken ?? "";
         }
