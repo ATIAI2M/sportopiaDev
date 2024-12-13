@@ -205,82 +205,84 @@ class _PepItemState extends State<PepItem> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      width: size.width * 0.4,
-                      padding: const EdgeInsets.all(8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              widget.removeClient(widget.client);
-                            },
-                            child: Container(
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        width: size.width * 0.4,
+                        padding: const EdgeInsets.all(8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                widget.removeClient(widget.client);
+                              },
+                              child: Container(
+                                width: 55,
+                                height: 55,
+                                decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 251, 236, 236),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: AppConstants.gray1.withOpacity(
+                                          0.2), 
+                                      spreadRadius: 4, 
+                                      blurRadius: 40, 
+                                      offset: Offset(
+                                          8, 0), 
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 35,
+                                  color: AppConstants.critical,
+                                ),
+                              ),
+                            ),
+                            Container(
                               width: 55,
                               height: 55,
                               decoration: BoxDecoration(
-                                color: Color.fromARGB(255, 251, 236, 236),
+                                color: Color.fromRGBO(253, 71, 85, 1),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppConstants.gray1.withOpacity(
-                                        0.2), 
-                                    spreadRadius: 4, 
-                                    blurRadius: 40, 
-                                    offset: Offset(
-                                        8, 0), 
+                                    color: AppConstants.critical.withOpacity(0.2),
+                                    spreadRadius: 0,
+                                    blurRadius: 40,
+                                    offset: const Offset(8, 0),
                                   ),
                                 ],
                               ),
-                              child: const Icon(
-                                Icons.close,
-                                size: 35,
-                                color: AppConstants.critical,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: 55,
-                            height: 55,
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(253, 71, 85, 1),
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppConstants.critical.withOpacity(0.2),
-                                  spreadRadius: 0,
-                                  blurRadius: 40,
-                                  offset: const Offset(8, 0),
+                              child: IconButton(
+                                icon: SvgPicture.asset(
+                                  'assets/images/heart.svg',
+                                  width: 35,
+                                  height: 35,
+                                  color: Colors.white,
                                 ),
-                              ],
-                            ),
-                            child: IconButton(
-                              icon: SvgPicture.asset(
-                                'assets/images/heart.svg',
-                                width: 35,
-                                height: 35,
-                                color: Colors.white,
+                                onPressed: () async {
+                                  if (!isProcessing) {
+                                    setState(() {
+                                      isProcessing = true;
+                                    });
+                                    await _handleMatch(context);
+                                    widget.removeClient(widget.client);
+                  
+                                    setState(() {
+                                      isProcessing = false;
+                                    });
+                                  }
+                                },
                               ),
-                              onPressed: () async {
-                                if (!isProcessing) {
-                                  setState(() {
-                                    isProcessing = true;
-                                  });
-                                  await _handleMatch(context);
-                                  widget.removeClient(widget.client);
-
-                                  setState(() {
-                                    isProcessing = false;
-                                  });
-                                }
-                              },
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

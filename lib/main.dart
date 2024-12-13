@@ -23,10 +23,13 @@ main() async {
 
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
+   alert: true,
+    announcement: false,
     badge: true,
-    sound: true,
+    carPlay: false,
+    criticalAlert: false,
     provisional: false,
+    sound: true,
   );
 
   if (Platform.isAndroid) {
@@ -97,9 +100,6 @@ class _MyAppState extends State<MyApp> {
 
   // Handle notification click to navigate to the appropriate screen
   Future<void> _handleNotificationClick(RemoteMessage message) async {
-    print("---------------click --- ");
-    print(message.data);
-    print("---------------click --- ");
 
     String chatId = message.data['chatId'];
     String clientId = message.data['receiverId'];
