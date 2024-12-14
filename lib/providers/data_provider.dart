@@ -973,6 +973,7 @@ Future<void> deleteLike(String id) async {
 
       //token = await messaging.getToken();
       if (Platform.isIOS) {
+
         FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
             alert: true, badge: true, sound: true);
         NotificationSettings settings =
@@ -985,6 +986,7 @@ Future<void> deleteLike(String id) async {
           provisional: false,
           sound: true,
         );
+        await FirebaseMessaging.instance.getAPNSToken();
         if (settings.authorizationStatus == AuthorizationStatus.authorized) {
           final tempToken = await messaging.getToken();
           token = tempToken ?? "";
